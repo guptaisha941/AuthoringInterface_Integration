@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="{{ url_for('static', filename='usr.css') }}">
+    <script src="usr.js"></script>
+    <title>USR</title>
+</head>
+<body>
+    <div class="menu">
+        <div class="logo">
+            <p>USR</p>
+        </div>
+        <div class="menuitem" align="right">
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="#">About</a></li>
+            <li><a href="#">Contact Us</a></li>
+            <li><a href="login.html" style="background: #fff;color: black;">LOGIN</a></li>
+            <li><a href="usrgenerate.html">Generate USR</a></li>
+        </ul>
+        </div>
+    </div>
+
+
+    <div class="adcontent">
+        <form action="{{ url_for('login') }}" method="post">
+          <div class="headname"><h1>LOGIN</h1></div>
+          <div class="msg">{{ msg }}</div>
+          <div class="field">
+            <input type="text" placeholder="LoginId" name="email"required>
+          </div>
+        
+          <div class="field">
+            <input type="password" placeholder="Password" name="password">
+          </div>
+
+          <div class="radio">
+            <input type="radio" id="author" name="r1">
+            <label for="author">Author</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <input type="radio" id="reviewer" name="r1">
+            <label for="reviewer">Reviewer</label>
+          </div>
+
+          <div class="adbutton">
+          <input type="submit" value="LOG IN">
+        </div>
+        </form>
+
+        <p>Don't have any account?<a href="{{url_for('signup')}}" >SIGN UP</a></p>
+        <br><br><br>
+
+      </div>
+      
+
+    <footer>
+        <p>application@2022</p>
+    </footer>
+      
+</body>
+</html>

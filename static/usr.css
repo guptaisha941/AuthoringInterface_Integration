@@ -1,0 +1,234 @@
+*
+{
+    margin: 0px;
+}
+.menu
+{
+    width: 100%;
+    height: 43px;
+    background-color: black;
+}
+.menu p
+{
+    color: white;
+    font-size: 32px;
+    margin-left: 10px;
+}
+footer 
+{
+    position: fixed;
+    width: 100%;
+    background-color:black;
+    color: white;
+    text-align: center;
+    height:25px;
+    bottom: 0;
+}
+.menu ul
+{
+    display: inline-flex;
+}
+.menu ul li
+{
+    list-style: none;
+    margin-left: 7px;
+}
+.menuitem
+{
+    margin-top: -28px;
+
+}
+.menu ul li a
+{
+    text-decoration: none;
+    color: #fff;
+    font-size: 22px;
+    font-weight: 500;
+    padding: 8px 15px;
+    border-radius: 5px;
+    transition: all 0.3s ease;
+}
+.menu ul li a:hover
+{
+    background: #fff;
+    color: black;
+}
+.adcontent
+  {
+    width: 495px;
+    border-radius: 10px;
+    margin-left: 487px;
+    margin-top: 62px;
+    background: rgb(15 14 14 / 80%);
+    box-shadow: -3px -3px 9px #aaa9a9a2, 3px 3px 7px rgb(15 15 15 / 67%);
+}
+.adcontent .field
+{
+    height: 50px;
+    width: 100%;
+    display: flex;
+    position: relative;
+    padding-top: 26px;
+}
+.field input{
+    width: 333px;
+      height: 81%;
+      padding-left: 29px;
+      margin-left: 75px;
+      font-size: 18px;
+      outline: none;
+      padding-top: 14px;
+      margin-top: 14px;
+      color: #e0d2d2;
+      border: 1px solid rgba(255, 255, 255, 0.438);
+      border-radius: 8px;
+      background: rgba(105, 105, 105, 0);
+}
+.adbutton
+{
+  margin-top: 40px;
+  margin-left: 175px;
+  padding-bottom: 100px;
+}
+.adbutton input
+{
+  border: 1px solid rgba(255, 255, 255, 0.438);
+  border-radius: 8px;
+  width: 116px;
+  height:40px;
+}
+.headname
+{
+    margin-left: 191px;
+    color: white;
+    padding-top: 29px;
+}
+.radio
+{
+    margin-left: 139px;
+    margin-top: 49px;
+}
+.radio label
+{
+    font-size: 21px;
+    color:rgba(255, 255, 255, 0.438);
+}
+
+.radio2
+{
+    margin-left: -26px;
+    margin-top: 100px;
+}
+.radio2 label
+{
+    font-size: 21px;
+    color:rgba(255, 255, 255, 0.438);
+}
+.radio2 p
+{
+    font-size: 21px;
+    color:rgba(255, 255, 255, 0.438);
+}
+.adcontent p
+{
+    margin-left: 108px;
+    font-size: 21px;
+    color: rgba(255, 255, 255, 0.438);
+    margin-top: -43px;
+}
+.adcontent a
+{
+    color: #fff;
+}
+
+
+/*usr */
+.tta
+        {
+            margin-top:20px;
+            margin-left:12px;
+        }
+        .tta textarea
+        {
+            height: auto;
+            width: 1169px;
+            font-size:medium;
+        }
+        .ttab
+        {
+            margin-top: -41px;
+            margin-left: 1222px;
+        }
+        .ttab input
+        {
+            height: 37px;
+            width: 193px;
+        }
+        .outl
+        {
+            height: auto;
+            width: 570px;
+            margin-top: 21px;
+            margin-left: 13px;
+        }
+        .os
+        {
+            display: flex;
+            flex-direction: column;
+        }
+        .osc
+        {
+            padding-top: 20px;
+            font-size: large;
+            line-height: 25px;
+        }
+        p.osc:hover
+        {
+            background-color: yellow;
+        }
+        .usr
+        {
+            position: fixed;
+            height: auto;
+            width: auto;
+            margin-top: 21px;
+            margin-left: 611px;
+            border: 5px solid black;
+            background-color: lightgrey;
+        }
+        table
+        {
+            margin-top: 32px;
+            margin-left: 57px;
+            border-collapse: separate;
+            margin-bottom: 32px;
+            margin-right: 24px;
+        }
+        td,th
+        {
+            height: 35px;
+            border-radius: 7px;
+            box-shadow: 2px 1px 2px black;
+        }
+        th
+        {
+            background: #ffc107;
+            width: 174px;
+            padding-top: 13px;
+        }
+        td{
+            background: white;
+            width: 174px;
+            padding-top: 13px;
+            text-align: center;
+        }
+        .headerdiv
+        {
+            
+            width: 264px;
+        }
+        .headerdiv2
+        {
+            display: contents;
+            width: auto;
+        }

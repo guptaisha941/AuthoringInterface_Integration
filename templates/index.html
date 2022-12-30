@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="{{ url_for('static', filename='usr.css') }}">
+    <script src="usr.js"></script>
+    <title>USR</title>
+</head>
+<body>
+    <div class="menu">
+        <div class="logo">
+            <p>USR</p>
+        </div>
+        <div class="menuitem" align="right">
+        <ul>
+            <li><a href="{{url_for('index')}}">Home</a></li>
+            <li><a href="#">About</a></li>
+            <li><a href="#">Contact Us</a></li>
+            <li><a href="login.html">LOGIN</a></li>
+            <li><a href="usrgenerate.html">Generate USR</a></li>
+        </ul>
+        </div>
+    </div>
+
+    <footer>
+        <p>application@2022</p>
+    </footer>
+      
+</body>
+</html>
