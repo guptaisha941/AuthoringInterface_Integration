@@ -1,8 +1,10 @@
 from flask import Flask, render_template, request, redirect, url_for, session
 from flask_mysqldb import MySQL
 
+
 app = Flask(__name__)
- 
+
+app.secret_key = 'asdfghjkl'
  
 # app.secret_key = 'your secret key'
  

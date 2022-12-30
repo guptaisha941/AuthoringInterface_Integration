@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, session
+from flask import Flask,flash, render_template, request, redirect, url_for, session
 from flask_mysqldb import MySQL
 from config import app
 import MySQLdb.cursors
@@ -9,6 +9,9 @@ from config import mysql
 # cursor.execute('CREATE TABLE IF NOT EXISTS author (author_id int AUTO_INCREMENT , author_name varchar(255), email varchar(255), password varchar(16), reviewer_role varchar(255), PRIMARY KEY(author_id)) ')
 
 @app.route('/')
+def index():
+    return render_template('index.html')
+
 @app.route('/login', methods =['GET', 'POST'])
 def login():
     msg = ''
@@ -17,13 +20,14 @@ def login():
         password = request.form['password']
         cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
         # cursor.execute('CREATE TABLE IF NOT EXISTS author (author_id int AUTO_INCREMENT , author_name varchar(255), email varchar(255), password varchar(16), reviewer_role varchar(255), PRIMARY KEY(author_id)) ')
-        cursor.execute('SELECT * FROM accounts WHERE email = % s AND password = % s', (email, password, ))
+        cursor.execute('SELECT * FROM author WHERE email = % s AND password = % s', (email, password, ))
         author = cursor.fetchone()
         if author:
             session['loggedin'] = True
             session['author_id'] = author['author_id']
             session['email'] = author['email']
             msg = 'Logged in successfully !'
+            flash('Logged in successfully')
             return render_template('index.html', msg = msg)
         else:
             msg = 'Incorrect loginId / password !'
