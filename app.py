@@ -6,6 +6,7 @@ from wxconv import WXC
 import MySQLdb.cursors
 import re
 from config import mysql
+from werkzeug.security import generate_password_hash, check_password_hash
 import json
 
 # cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
@@ -27,6 +28,7 @@ def login():
     if request.method == 'POST' and 'email' in request.form and 'password' in request.form:
         email = request.form['email']
         password = request.form['password']
+        # password = generate_password_hash(password)
         cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
         # cursor.execute('CREATE TABLE IF NOT EXISTS author (author_id int AUTO_INCREMENT , author_name varchar(255), email varchar(255), password varchar(16), reviewer_role varchar(255), PRIMARY KEY(author_id)) ')
         cursor.execute('SELECT * FROM author WHERE email = % s AND password = % s', (email, password, ))
@@ -69,9 +71,11 @@ def signup():
         elif not author_name or not password or not email:
             msg = 'Please fill out the form !'
         else:
+            # hashed_password = generate_password_hash(password)
             cursor.execute('INSERT INTO author VALUES (NULL, % s, % s, % s, % s)', (author_name, email, password, reviewer_role ))
             mysql.connection.commit()
             msg = 'You have successfully registered !'
+            return render_template('login.html')
     elif request.method == 'POST':
         msg = 'Please fill out the form !'
     return render_template('signup.html', msg = msg)
@@ -111,6 +115,7 @@ def update_author():
         _reviewer_role = _json['reviewer_role']
         if _author_name and _email and _password and _reviewer_role and request.method == 'PUT':
             sql = "UPDATE author SET author_name=%s, email=%s, password=%s, reviewer_role=%s WHERE author_id=%s"
+            # _hashed_password = generate_password_hash(_password)
             data = (_author_name, _email, _password, _reviewer_role, _author_id)
             cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
             cursor.execute(sql, data)
@@ -234,7 +239,13 @@ def create_USR():
         _USR_status = _json['USR_status']
         if _author_id and _discourse_id and _sentence_id and _orignal_USR_json and _final_USR and _USR_status and request.method == 'POST':
             cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)	
-            _orignal_USR_json = json.dumps(_orignal_USR_json)
+            _orignal_USR_json = json.dumps(_orignal_USR_json, indent=10)
+            # orignal_USR_json = json.loads(_orignal_USR_json)
+            # print(_orignal_USR_json)
+            # _orignal_USR_json = _orignal_USR_json.replace('/', '')
+            # print(_orignal_USR_json)
+            # _orignal_USR_json = _orignal_USR_json.replace('"', '/"')
+            # _orignal_USR_json = _orignal_USR_json.replace('/', '')
             sqlQuery = "INSERT INTO usr(author_id, discourse_id, sentence_id, orignal_USR_json, final_USR, USR_status) VALUES(%s, %s, %s, %s, %s, %s)"
             bindData = (_author_id, _discourse_id, _sentence_id, _orignal_USR_json, _final_USR, _USR_status)            
             cursor.execute(sqlQuery, bindData)
@@ -242,10 +253,11 @@ def create_USR():
             print(type(_orignal_USR_json))
             respone = jsonify('USR added successfully!')
             respone.status_code = 200
-            cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-            _orignal_USR_json = json.loads(_orignal_USR_json)
-            print(type(_orignal_USR_json))
-            cursor.execute("UPDATE usr SET orignal_USR_json=%s",_orignal_USR_json) 
+            # cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+            # _orignal_USR_json = _orignal_USR_json.replace('/', '')
+            # print(type(_orignal_USR_json))
+            # cursor.execute("UPDATE usr SET orignal_USR_json=%s",_orignal_USR_json) 
+            # print(s.replace('/', ''))
             mysql.connection.commit()
             return respone
     except Exception as e:
@@ -254,14 +266,17 @@ def create_USR():
 @app.route('/USR')
 def USR():
     try:
-        # cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)	
+        cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)	
         # cursor.execute("SELECT orignal_USR_json from usr")
         # usr_json = cursor.fetchall()
+        # print(type(usr_json))
+        # _orignal_USR_json = usr_json.replace('/', '')
+        # print(type(_orignal_USR_json))
         # orignal_USR_json = json.loads(usr_json)
-        # cursor.execute("SELECT author_id, discourse_id, sentence_id, USR_ID, orignal_USR_json, final_USR, create_date, USR_status FROM usr WHERE orignal_USR_json = %s", orignal_USR_json)
+        # cursor.execute("UPDATE usr SET orignal_USR_json=%s",_orignal_USR_json)
         # mysql.connection.commit()
         cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-        cursor.execute("SELECT author_id, discourse_id, sentence_id, USR_ID, orignal_USR_json, final_USR, create_date, USR_status FROM usr")
+        cursor.execute("SELECT * FROM usr")
         usrRows = cursor.fetchall()
         # usrRows = json.loads(usrRows)
         respone = jsonify(usrRows)
@@ -281,3 +296,6 @@ def usr_details(USR_ID):
         return respone
     except Exception as e:
         print(e)
+
+# @app.route('/USR_BySentence/<USR_ID>')
+# def usr_bysentence()
