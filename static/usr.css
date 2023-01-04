@@ -71,18 +71,17 @@ footer
     padding-top: 26px;
 }
 .field input{
-    width: 333px;
-      height: 81%;
-      padding-left: 29px;
-      margin-left: 75px;
-      font-size: 18px;
-      outline: none;
-      padding-top: 14px;
-      margin-top: 14px;
-      color: #e0d2d2;
-      border: 1px solid rgba(255, 255, 255, 0.438);
-      border-radius: 8px;
-      background: rgba(105, 105, 105, 0);
+    width: 267px;
+    height: 81%;
+    padding-left: 29px;
+    margin-left: 2%;
+    font-size: 18px;
+    outline: none;
+    margin-top: 14px;
+    color: #e0d2d2;
+    border: 1px solid rgba(255, 255, 255, 0.438);
+    border-radius: 8px;
+    background: rgba(105, 105, 105, 0);
 }
 .adbutton
 {
@@ -139,6 +138,13 @@ footer
 .adcontent a
 {
     color: #fff;
+}
+.field label
+{
+    margin-left: 12%;
+    font-size: 21px;
+    color: rgba(255, 255, 255, 0.438);
+    margin-top: 6%;
 }
 
 
