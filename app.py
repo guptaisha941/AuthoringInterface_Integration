@@ -8,6 +8,8 @@ import re
 from config import mysql
 from werkzeug.security import generate_password_hash, check_password_hash
 import json
+import pprint
+import os
 
 # cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
 # cursor.execute("CREATE TABLE IF NOT EXISTS discourse (discourse_id int NOT NULL AUTO_INCREMENT, author_id int, no_sentences int, domain varchar(255), create_date datetime default now(), other_attributes VARCHAR(255), sentences VARCHAR(255),PRIMARY KEY (discourse_id),FOREIGN KEY (author_id) REFERENCES author(author_id)")
@@ -17,8 +19,9 @@ import json
 def index():
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
     cursor.execute("CREATE TABLE IF NOT EXISTS author (author_id int AUTO_INCREMENT , author_name varchar(255), email varchar(255), password varchar(16), reviewer_role varchar(255), PRIMARY KEY(author_id))")
-    cursor.execute("CREATE TABLE IF NOT EXISTS discourse (discourse_id int NOT NULL AUTO_INCREMENT, author_id int, no_sentences int, domain varchar(255), create_date datetime default now(), other_attributes VARCHAR(255), sentences VARCHAR(255),PRIMARY KEY (discourse_id),FOREIGN KEY (author_id) REFERENCES author(author_id))")
-    cursor.execute("CREATE TABLE IF NOT EXISTS usr (author_id int,  discourse_id int, sentence_id int ,USR_ID int NOT NULL AUTO_INCREMENT, orignal_USR_json JSON,final_USR json,create_date datetime default now(),USR_status varchar(255),FOREIGN KEY (sentence_id) REFERENCES discourse (discourse_id) ,FOREIGN KEY (discourse_id) REFERENCES discourse(discourse_id),FOREIGN KEY (author_id) REFERENCES author(author_id), PRIMARY KEY (USR_ID))")
+    cursor.execute("CREATE TABLE IF NOT EXISTS discourse (discourse_id int NOT NULL AUTO_INCREMENT, discourse_name varchar(255),author_id int, no_sentences int, domain varchar(255), create_date datetime default now(), other_attributes VARCHAR(255), sentences MEDIUMTEXT,PRIMARY KEY (discourse_id),FOREIGN KEY (author_id) REFERENCES author(author_id))")
+    cursor.execute("CREATE TABLE IF NOT EXISTS usr (author_id int,  discourse_id int, sentence_id varchar(255) ,USR_ID int NOT NULL AUTO_INCREMENT, orignal_USR_json MEDIUMTEXT,final_USR json,create_date datetime default now(),USR_status varchar(255),FOREIGN KEY (discourse_id) REFERENCES discourse(discourse_id),FOREIGN KEY (author_id) REFERENCES author(author_id), PRIMARY KEY (USR_ID))")
+    cursor.execute("CREATE TABLE IF NOT EXISTS demlo(demlo_id int AUTO_INCREMENT, demlo_txt JSON, PRIMARY KEY (demlo_id))")
     mysql.connection.commit()
     return render_template('index.html')
 
@@ -39,10 +42,10 @@ def login():
             session['email'] = author['email']
             msg = 'Logged in successfully !'
             flash('Logged in successfully')
-            return render_template('index.html', msg = msg)
+            return render_template('index.html')
         else:
-            msg = 'Incorrect loginId / password !'
-    return render_template('login.html', msg = msg)
+            flash('Incorrect loginId / password !')
+    return render_template('login.html')
  
 # @app.route('/logout')
 # def logout():
@@ -63,22 +66,22 @@ def signup():
         cursor.execute('SELECT * FROM author WHERE author_name = % s', (author_name, ))
         author = cursor.fetchone()
         if author:
-            msg = 'author already exists !'
+            flash('author already exists !')
         elif not re.match(r'[^@]+@[^@]+\.[^@]+', email):
-            msg = 'Invalid email address !'
+            flash('Invalid email address !')
         # elif not re.match(r'[A-Za-z]+', author_name):
         #     msg = 'author_name must contain only characters !'
         elif not author_name or not password or not email:
-            msg = 'Please fill out the form !'
+            flash('Please fill out the form !')
         else:
             # hashed_password = generate_password_hash(password)
             cursor.execute('INSERT INTO author VALUES (NULL, % s, % s, % s, % s)', (author_name, email, password, reviewer_role ))
             mysql.connection.commit()
-            msg = 'You have successfully registered !'
+            flash('You have successfully registered !')
             return render_template('login.html')
     elif request.method == 'POST':
-        msg = 'Please fill out the form !'
-    return render_template('signup.html', msg = msg)
+        flash('Please fill out the form !')
+    return render_template('signup.html')
 
 @app.route('/authors')
 def author():
@@ -140,6 +143,49 @@ def delete_author(author_id):
 	except Exception as e:
 		print(e)
 
+def usr_conversion(usr_file):
+    dict1 = {}
+    file = open(usr_file)
+    line1 = file.readline()
+    line2 = (file.readline()).strip().split(',')
+    dict1["Concept"] = line2
+    line3 = [int(x) for x in file.readline().split(",")]
+    dict1["Index"] = line3
+    line4 = (file.readline()).strip().split(',')
+    dict1["Sem. Cat"] = line4
+    line5 = (file.readline()).strip().split(',')
+    dict1["G-N-P"] = line5
+    line6 = (file.readline()).strip().split(',')
+    dict1["Dep-Rel"] = line6
+    line7 = (file.readline()).strip().split(',')
+    dict1["Discourse"] = line7
+    line8 = (file.readline()).strip().split(',')
+    dict1["Speaker's View"] = line8
+    line9 = (file.readline()).strip().split(',')
+    dict1["Scope"] = line9
+    line10 = file.readline().strip().split(',')
+    dict1["Sentence Type"] = line10
+    return dict1
+
+def getUSR():
+    os.getcwd()
+    data_folder = os.path.join(os.getcwd(), 'Bulk_USRs')
+    data=[]
+    for root, folders, files in os.walk(data_folder):
+        for file in files:
+            path = os.path.join(root, file)
+            data.append(usr_conversion(path))
+    return data
+
+l1 = json.dumps(getUSR()[0])
+m = l1.encode()
+print(m)
+l2 = json.loads(l1)
+print(type(getUSR()[0]))
+
+
+
+
 @app.route('/discourse/create', methods = ['POST'])
 def create_discourse():
     try:
@@ -149,17 +195,51 @@ def create_discourse():
         _domain = _json['domain']
         _other_attributes = _json['other_attributes']
         _sentences = _json['sentences']
-        if _author_id and _no_sentences and _domain and _other_attributes and _sentences and request.method == 'POST':
+        _discourse_name = _json['discourse_name']
+        if _author_id and _no_sentences and _domain and _other_attributes and _sentences and _discourse_name and request.method == 'POST':
             cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
             hin2wx = WXC(order='utf2wx', lang="hin").convert
             _sentences = hin2wx(_sentences)
-            sqlQuery = "INSERT INTO discourse(author_id, no_sentences, domain, other_attributes, sentences) VALUES(%s, %s, %s, %s, %s)"
-            bindData = (_author_id, _no_sentences,_domain, _other_attributes, _sentences)
+            # text_file = open("sentences_for_USR", "w")
+            sc = 12345
+            sent_list = _sentences.split(".")
+            sent_list= sent_list[:-1]
+            tmp_list = []
+            with open ('sentences_for_USR', 'w') as file:  
+                for x in sent_list:
+                    st = str(sc) + "   " +  x.lstrip(" ")
+                    file.write(st)
+                    file.write('\n')
+                    sc += 1
+            sqlQuery = "INSERT INTO discourse(author_id, discourse_name, no_sentences, domain, other_attributes, sentences) VALUES(%s, %s, %s, %s, %s, %s)"
+            bindData = (_author_id, _discourse_name,_no_sentences,_domain, _other_attributes, _sentences)
             cursor.execute(sqlQuery, bindData)
+            mysql.connection.commit()
+            row_id = cursor.lastrowid
+            c=1
+            for x in getUSR():
+                rd = str(row_id)+'.'+str(c)
+                cursor.execute("INSERT INTO usr(author_id,discourse_id,sentence_id,orignal_USR_json) VALUES(%s,%s,%s,%s)", [_author_id,row_id, rd, getUSR()[c-1]])
+                c += 1
             mysql.connection.commit()
             respone = jsonify('discourse added successfully!')
             respone.status_code = 200
             return respone
+    except Exception as e:
+        print(e)
+    
+@app.route('/usr/<discourse_name>')
+def usrin_details(discourse_name):
+    try:
+        cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+        cursor.execute("SELECT discourse_id FROM discourse WHERE discourse_name = %s", [discourse_name])
+        dis_row = cursor.fetchone()
+        d_id = dis_row.get("discourse_id")
+        cursor.execute("SELECT author_id, discourse_id, sentence_id, orignal_USR_json FROM usr  WHERE discourse_id  =%s", [d_id])
+        authRow = cursor.fetchall()
+        respone = jsonify(authRow)
+        respone.status_code = 200
+        return respone
     except Exception as e:
         print(e)
 
@@ -174,18 +254,6 @@ def discourse():
         return respone
     except Exception as e:
         print(e)
-
-@app.route('/discourse/<discourse_id>')
-def dis_details(discourse_id):
-    try:
-        cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-        cursor.execute("SELECT discourse_id , author_id, no_sentences, domain, create_date,other_attributes, sentences FROM discourse WHERE discourse_id =%s", discourse_id)
-        disRow = cursor.fetchone()
-        respone = jsonify(disRow)
-        respone.status_code = 200
-        return respone
-    except Exception as e:
-        print(e) 
 
 @app.route('/discourse/update', methods=['PUT'])
 def update_discourse():
@@ -227,6 +295,7 @@ def delete_discourse(discourse_id):
 	except Exception as e:
 		print(e)
 
+
 @app.route('/USR/create', methods = ['POST'])
 def create_USR():
     try:
@@ -234,30 +303,16 @@ def create_USR():
         _author_id = _json['author_id']
         _discourse_id = _json['discourse_id']
         _sentence_id = _json['sentence_id']
-        _orignal_USR_json = _json['orignal_USR_json']
         _final_USR = _json['final_USR']
         _USR_status = _json['USR_status']
-        if _author_id and _discourse_id and _sentence_id and _orignal_USR_json and _final_USR and _USR_status and request.method == 'POST':
-            cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)	
-            _orignal_USR_json = json.dumps(_orignal_USR_json, indent=10)
-            # orignal_USR_json = json.loads(_orignal_USR_json)
-            # print(_orignal_USR_json)
-            # _orignal_USR_json = _orignal_USR_json.replace('/', '')
-            # print(_orignal_USR_json)
-            # _orignal_USR_json = _orignal_USR_json.replace('"', '/"')
-            # _orignal_USR_json = _orignal_USR_json.replace('/', '')
-            sqlQuery = "INSERT INTO usr(author_id, discourse_id, sentence_id, orignal_USR_json, final_USR, USR_status) VALUES(%s, %s, %s, %s, %s, %s)"
-            bindData = (_author_id, _discourse_id, _sentence_id, _orignal_USR_json, _final_USR, _USR_status)            
+        if _author_id and _discourse_id and _sentence_id and _final_USR and _USR_status and request.method == 'POST':
+            cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+            sqlQuery = "INSERT INTO usr(author_id, discourse_id, sentence_id, final_USR, USR_status) VALUES(%s, %s, %s, %s, %s)"
+            bindData = (_author_id, _discourse_id, _sentence_id, _final_USR, _USR_status)           
             cursor.execute(sqlQuery, bindData)
             mysql.connection.commit()
-            print(type(_orignal_USR_json))
             respone = jsonify('USR added successfully!')
             respone.status_code = 200
-            # cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-            # _orignal_USR_json = _orignal_USR_json.replace('/', '')
-            # print(type(_orignal_USR_json))
-            # cursor.execute("UPDATE usr SET orignal_USR_json=%s",_orignal_USR_json) 
-            # print(s.replace('/', ''))
             mysql.connection.commit()
             return respone
     except Exception as e:
@@ -267,18 +322,9 @@ def create_USR():
 def USR():
     try:
         cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)	
-        # cursor.execute("SELECT orignal_USR_json from usr")
-        # usr_json = cursor.fetchall()
-        # print(type(usr_json))
-        # _orignal_USR_json = usr_json.replace('/', '')
-        # print(type(_orignal_USR_json))
-        # orignal_USR_json = json.loads(usr_json)
-        # cursor.execute("UPDATE usr SET orignal_USR_json=%s",_orignal_USR_json)
-        # mysql.connection.commit()
         cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
         cursor.execute("SELECT * FROM usr")
         usrRows = cursor.fetchall()
-        # usrRows = json.loads(usrRows)
         respone = jsonify(usrRows)
         respone.status_code = 200
         return respone
@@ -289,13 +335,10 @@ def USR():
 def usr_details(USR_ID):
     try:
         cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-        cursor.execute("SELECT author_id, discourse_id, sentence_id, USR_ID, orignal_USR_json, final_USR, create_date, USR_status FROM usr WHERE USR_ID =%s", USR_ID)
+        cursor.execute("SELECT author_id, discourse_id, sentence_id, USR_ID, orignal_USR_json, final_USR, create_date, USR_status FROM usr WHERE USR_ID =%s", [USR_ID])
         usrRow = cursor.fetchone()
         respone = jsonify(usrRow)
         respone.status_code = 200
         return respone
     except Exception as e:
         print(e)
-
-# @app.route('/USR_BySentence/<USR_ID>')
-# def usr_bysentence()

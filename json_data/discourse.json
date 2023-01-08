@@ -1,5 +1,6 @@
 {
     "author_id": 1,
+    "discourse_name": "demo",
     "domain": "geo/history/ncert",
     "no_sentences": 2,
     "other_attributes": "complex_sentence",

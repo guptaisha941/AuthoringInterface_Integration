@@ -6,6 +6,7 @@
     <title>USR</title>
 </head>
 <body>
+    
     <div class="menu">
         <div class="logo">
             <p>USR</p>
@@ -18,8 +19,15 @@
             <li><a href="{{ url_for('login')}}">LOGIN</a></li>
             <li><a href="usrgenerate.html">Generate USR</a></li>
         </ul>
-        </div>
+        </div> 
+        {% for message in get_flashed_messages() %}
+            <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                {{message}}
+            <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
+            </div>
+        {% endfor %}
     </div>
+
 
     <footer>
         <p>application@2022</p>
